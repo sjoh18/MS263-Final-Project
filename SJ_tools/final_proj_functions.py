@@ -52,7 +52,7 @@ def jelly_anova(chrysaora, aurelia, aequorea):
     post_hoc: pandas dataframe
         Results of the post-hoc, if a significant difference was found by ANOVA (alpha = 0.05)
     '''
-    filepath = '/Users/sarah/Documents/MLML/Current_classes/MS263-Data_Analysis/Final_project/jelly_abundance_combined.csv'
+    filepath = '/Users/sarah/Documents/MLML/Current_classes/MS263-Data_Analysis/Final_project/data/jelly_abundance_combined.csv'
     jelly_ab = pd.read_csv(filepath,header=1)
 
     chrysaora = jelly_ab[(jelly_ab['species_group'] == 'Chrysaora')]
@@ -80,8 +80,8 @@ def read_chl_from_file(file_path):
         
     Returns
     -------
-    montbay_chl: float
-        value of chlorophyll-a concentration as measured by AQUA-MODIS satellite at specified lat-lon coordinate
+    montbay_chl: numpy array
+        array of values of chlorophyll-a concentration
     '''
 
     ds = nc4.Dataset(file_path)
@@ -117,6 +117,19 @@ def read_chl_from_file(file_path):
 
 
 def remove_nans_chl(chl_values):
+    '''
+    Function to convert NaN values in the AQUA MODIS chlorophyll-a data to zeros.
+
+    Parameters
+    ----------
+    chl_values: list
+        list of satellite chlorophyll-a concentration measurements
+        
+    Returns
+    -------
+    values_nonans: numpy array
+        array of chlorophyll-a concentration values excluding NaNs
+    '''
     chl_values = np.array(chl_values)
     values_nonans = np.where(chl_values == -3.2767e+04, 0, chl_values)
 
@@ -125,6 +138,19 @@ def remove_nans_chl(chl_values):
 
 
 def read_sst_from_file(file_path):
+    '''
+    Function to extract NASA'a MUR SST satellite data products in a specified area, Monterey Bay in this case. MUR SST data must be downloaded already.
+
+    Parameters
+    ----------
+    file_path: string
+        path to folder and list of file names containing MUR SST data
+        
+    Returns
+    -------
+    montbay_sst: numpy array
+        array of SST values
+    '''
 
     ds = nc4.Dataset(file_path)
 
@@ -148,7 +174,6 @@ def read_sst_from_file(file_path):
     ds.close()
     
     mur_sst = mur_sst[0,:,:]
-    # gives a 2D array, why does it need to be 2D?
     
     montbay_sst = mur_sst[min_lat_index:max_lat_index+1, min_lon_index:max_lon_index+1]
     
@@ -157,6 +182,19 @@ def read_sst_from_file(file_path):
 
 
 def remove_nans_sst(sst_values):
+    '''
+    Function to convert NaN values in the MUR SST data products to zeros.
+
+    Parameters
+    ----------
+    sst_values: list
+        list of satellite SST measurements
+        
+    Returns
+    -------
+    values_nonans: numpy array
+        array of SST values excluding NaNs
+    '''
     sst_values = np.array(sst_values)
     values_nonans = np.where(sst_values == -32768, 0, sst_values)
 
