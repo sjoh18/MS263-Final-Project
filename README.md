@@ -27,4 +27,5 @@ Python packages needed to run analysis:
 10. Glidertools
 
 ## Location of data
-All data is provided in the "data" folder in the main branch of the repository
+All data *necessary for statistical analysis* is provided in the "data" folder in the main branch of the repository
+Raw data can be downloaded from PODAAC (SST and chl-a) and ERDDAP (jelly abundance)
