@@ -1,2 +1,4 @@
 .DS_Store
 data/
+_pychache_/
+.ipynb_checkpoints
