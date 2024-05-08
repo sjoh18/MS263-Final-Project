@@ -19,12 +19,10 @@ Python packages needed to run analysis:
 2. MatPlotLib
 3. Pandas
 4. Pingouin
-5. CmOcean
-6. OS
-7. DateTime
-8. Cartopy
-9. Scipy
-10. Glidertools
+5. OS
+6. DateTime
+7. Scipy
+8. SJ_tools (folder located in main branch of repo)
 
 ## Location of data
 All data *necessary for statistical analysis* is provided in the "data" folder in the main branch of the repository
