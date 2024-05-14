@@ -29,21 +29,16 @@ def relative_abundance(sp_richness, N, ni):
     rel_abundance = -(np.sum(ni/N*np.log(ni/N)))
     return(rel_abundance)
 
-def jelly_anova(chrysaora, aurelia, aequorea):
+
+
+def jelly_anova(jellydf):
     '''
     Function to: 1. run an ANOVA on jellyfish abundance data, and 2. if there is a significant difference between any groups, run a post-hoc test to determine which group(s) is/are significantly different
 
     Parameters
     ----------
-    chrysaora: pandas dataframe
-        Subsetted data including only Chrysaora genus biomass
-
-    aurelia: pandas dataframe
-        Subsetted data including only Aurelia genus biomass
-
-    aequorea: pandas dataframe
-        Subsetted data including only Aequora genus biomass
-
+    jellydf: pandas dataframe
+        Dataframe containing jellyfish abundance data
 
     Returns
     -------
@@ -52,152 +47,11 @@ def jelly_anova(chrysaora, aurelia, aequorea):
     post_hoc: pandas dataframe
         Results of the post-hoc, if a significant difference was found by ANOVA (alpha = 0.05)
     '''
-    filepath = '/Users/sarah/Documents/MLML/Current_classes/MS263-Data_Analysis/Final_project/data/jelly_abundance_combined.csv'
-    jelly_ab = pd.read_csv(filepath,header=1)
-
-    chrysaora = jelly_ab[(jelly_ab['species_group'] == 'Chrysaora')]
-    aurelia = jelly_ab[(jelly_ab['species_group'] == 'Aurelia')]
-    aequorea = jelly_ab[(jelly_ab['species_group'] == 'Aequorea')]
-    abundance = jelly_ab['abundance']
-    
-    anova = pg.welch_anova(data=jelly_ab, dv='abundance', between='species_group')
+    anova = pg.welch_anova(data=jellydf, dv='abundance', between='genus')
 
     if anova['p-unc'][0] <= 0.05:
-        post_hoc = pg.pairwise_gameshowell(data=jelly_ab, dv='abundance', between='species_group')
+        post_hoc = pg.pairwise_tukey(data=jellydf, dv='abundance', between='genus')
 
     return anova, post_hoc
-    
-
-
-def read_chl_from_file(file_path):
-    '''
-    Function to extract chlorophyll-a Ocean Color data from NASA's AQUA-MODIS satellite in a specified area, Monterey Bay in this case. Ocean Color data must be downloaded already.
-
-    Parameters
-    ----------
-    file_path: string
-        path to folder and list of file names containing Ocean Color data
-        
-    Returns
-    -------
-    montbay_chl: numpy array
-        array of values of chlorophyll-a concentration
-    '''
-
-    ds = nc4.Dataset(file_path)
-    
-    # tell python what the latitude and longitude variables are called in the netCDF files
-    modis_lat = np.array(ds.variables['lat'])
-    modis_lon = np.array(ds.variables['lon'])
-    modis_chl = np.array(ds.variables['chlor_a'])
-
-    # specify a central point, then the radius
-    # use the radius to calculate the square area of values to be included
-    center_lat = 36.8
-    center_lon = -121.9
-    radius = 0.5
-    min_lat = center_lat + radius
-    max_lat = center_lat - radius
-    min_lon = center_lon - radius
-    max_lon = center_lon + radius
-
-    min_lat_index = np.abs(modis_lat - min_lat).argmin()
-    max_lat_index = np.abs(modis_lat - max_lat).argmin()
-    min_lon_index = np.abs(modis_lon - min_lon).argmin()
-    max_lon_index = np.abs(modis_lon - max_lon).argmin()
-
-    ds.close()
-
-    # extract chlorophyll values from the specified square
-    montbay_chl = modis_chl[min_lat_index:max_lat_index+1, min_lon_index:max_lon_index+1]
-    
-    return(montbay_chl)
-
-
-
-
-def remove_nans_chl(chl_values):
-    '''
-    Function to convert NaN values in the AQUA MODIS chlorophyll-a data to zeros.
-
-    Parameters
-    ----------
-    chl_values: list
-        list of satellite chlorophyll-a concentration measurements
-        
-    Returns
-    -------
-    values_nonans: numpy array
-        array of chlorophyll-a concentration values excluding NaNs
-    '''
-    chl_values = np.array(chl_values)
-    values_nonans = np.where(chl_values == -3.2767e+04, 0, chl_values)
-
-    return values_nonans
-
-
-
-def read_sst_from_file(file_path):
-    '''
-    Function to extract NASA'a MUR SST satellite data products in a specified area, Monterey Bay in this case. MUR SST data must be downloaded already.
-
-    Parameters
-    ----------
-    file_path: string
-        path to folder and list of file names containing MUR SST data
-        
-    Returns
-    -------
-    montbay_sst: numpy array
-        array of SST values
-    '''
-
-    ds = nc4.Dataset(file_path)
-
-    mur_lat = np.array(ds.variables['lat'])
-    mur_lon = np.array(ds.variables['lon'])
-    mur_sst = np.array(ds.variables['analysed_sst'])
-    
-    center_lat = 36.8
-    center_lon = -121.9
-    radius = 0.5
-    min_lat = center_lat - radius
-    max_lat = center_lat + radius
-    min_lon = center_lon - radius
-    max_lon = center_lon + radius
-
-    min_lat_index = np.abs(mur_lat - min_lat).argmin()
-    max_lat_index = np.abs(mur_lat - max_lat).argmin()
-    min_lon_index = np.abs(mur_lon - min_lon).argmin()
-    max_lon_index = np.abs(mur_lon - max_lon).argmin()
-    
-    ds.close()
-    
-    mur_sst = mur_sst[0,:,:]
-    
-    montbay_sst = mur_sst[min_lat_index:max_lat_index+1, min_lon_index:max_lon_index+1]
-    
-    return(montbay_sst)
-
-
-
-def remove_nans_sst(sst_values):
-    '''
-    Function to convert NaN values in the MUR SST data products to zeros.
-
-    Parameters
-    ----------
-    sst_values: list
-        list of satellite SST measurements
-        
-    Returns
-    -------
-    values_nonans: numpy array
-        array of SST values excluding NaNs
-    '''
-    sst_values = np.array(sst_values)
-    values_nonans = np.where(sst_values == -32768, 0, sst_values)
-
-    return values_nonans
 
 
