@@ -1,4 +1,4 @@
-# Effects of temperature and food availability on abundance of three genera of marine gelatinous medusae
+# Effects of upwelling (nitrate flux) on abundance of three genera of marine gelatinous medusae
 
 ## Steps for running analysis
 1. Download the CSV files in the "data" folder
