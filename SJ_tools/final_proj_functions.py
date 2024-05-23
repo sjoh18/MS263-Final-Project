@@ -1,32 +1,26 @@
 import numpy as np
-from scipy import stats
-import pandas as pd
 import pingouin as pg
-import netCDF4 as nc4
-import os
 
 
-def relative_abundance(sp_richness, N, ni):
+def relative_abundance(N, ni):
     '''
     Function to calculate relative species abundance
 
     Parameters
     ----------
-    sp_richness: float
-        Species richness - total number of species observed
-
     N: int
         Total biomass of all samples [CPUE]
 
     ni: int
-        Biomass of target species individuals observed [CPUE]
+        Biomass of target genus [CPUE]
 
     Returns
     -------
     rel_abundance: float
-        Relative abundance of species of interest [CPUE]
+        Relative abundance of target genus [CPUE]
+        -(np.sum(ni/N*np.log(ni/N)))
     '''
-    rel_abundance = -(np.sum(ni/N*np.log(ni/N)))
+    rel_abundance = (ni/N)*100
     return(rel_abundance)
 
 
@@ -53,5 +47,28 @@ def jelly_anova(jellydf):
         post_hoc = pg.pairwise_tukey(data=jellydf, dv='abundance', between='genus')
 
     return anova, post_hoc
+
+
+
+def calc_correlations(beuti, jellies):
+    '''
+    Function to calculate the correlation matrices between BEUTI index data and jellyfish abundance data. Calculates the R^2 value, then extracts the values from the resulting matrix.
+
+    Parameters
+    ----------
+    beuti: numpy array
+        BEUTI index data; daily observations averaged by month
+    jellies: numpy array
+        Jellyfish abundance data; one value per year
+    
+    Returns
+    -------
+    r2: float
+        Correlation coefficient squared
+    '''
+    r2_array = (np.sqrt(np.abs(np.corrcoef(beuti, jellies, rowvar=False))))
+    r2_value = np.fliplr(r2_array).diagonal()
+    r2 = r2_value[0]
+    return(r2)
 
 
