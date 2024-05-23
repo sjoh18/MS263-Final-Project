@@ -18,7 +18,6 @@ def relative_abundance(N, ni):
     -------
     rel_abundance: float
         Relative abundance of target genus [CPUE]
-        -(np.sum(ni/N*np.log(ni/N)))
     '''
     rel_abundance = (ni/N)*100
     return(rel_abundance)
